@@ -1,0 +1,961 @@
+<style>
+  :root {
+    --espresso: #3B2A20;
+    --espresso-deep: #2A1D15;
+    --cream: #FBF3E7;
+    --paper: #FFFDF9;
+    --sage: #6E7B57;
+    --sage-deep: #545E42;
+    --sage-soft: #E7ECDF;
+    --gold: #C9A227;
+    --line: #EAE0CF;
+    --ink-soft: #8A7A69;
+  }
+
+  * { box-sizing: border-box; }
+
+  #pos-root {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--espresso);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pos-header {
+    background: var(--espresso);
+    color: var(--cream);
+    padding: 20px 32px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pos-brand {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 25px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+
+  .pos-brand span { color: var(--gold); }
+
+  .pos-sub {
+    font-size: 12.5px;
+    color: #C9BBA6;
+    margin-top: 3px;
+  }
+
+  .history-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--cream);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 999px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .history-btn:hover { background: rgba(255, 255, 255, 0.18); }
+
+  .pos-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .history-empty {
+    color: var(--ink-soft);
+    font-size: 13.5px;
+    text-align: center;
+    padding: 34px 10px;
+  }
+
+  .history-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--cream);
+    cursor: pointer;
+    text-align: left;
+    border: none;
+    width: 100%;
+  }
+
+  .history-row:hover { background: var(--sage-soft); }
+
+  .history-row-left { min-width: 0; }
+
+  .history-row-id {
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+
+  .history-row-meta {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+
+  .history-row-total {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--sage-deep);
+    flex-shrink: 0;
+  }
+
+  .history-day-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: var(--ink-soft);
+    margin: 14px 0 2px;
+  }
+
+  .history-day-label:first-child { margin-top: 0; }
+
+  .history-summary {
+    display: flex;
+    justify-content: space-between;
+    background: var(--sage-soft);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+    font-size: 13px;
+  }
+
+  .history-summary strong { font-size: 15px; }
+
+  .back-link {
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 14px;
+  }
+
+  .back-link:hover { color: var(--espresso); }
+
+  .pos-main {
+    flex: 1;
+    padding: 24px 28px 32px;
+    overflow-y: auto;
+  }
+
+  .cat-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+  }
+
+  .cat-tab {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 15px;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .cat-tab:hover { background: var(--sage-soft); color: var(--sage-deep); }
+
+  .cat-tab.active {
+    background: var(--espresso);
+    color: var(--cream);
+  }
+
+  .item-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+    gap: 16px;
+  }
+
+  .item-card {
+    background: var(--paper);
+    border: none;
+    border-radius: 14px;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(59, 42, 32, 0.06);
+    transition: box-shadow 0.15s, transform 0.12s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .item-card:hover {
+    box-shadow: 0 6px 16px rgba(59, 42, 32, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .item-card:active { transform: translateY(0); }
+
+  .item-thumb {
+    width: 100%;
+    aspect-ratio: 1.25 / 1;
+    background: var(--sage-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .item-thumb svg { width: 46%; height: 46%; }
+
+  .item-info { padding: 12px 13px 14px; }
+
+  .item-name {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 8px;
+    min-height: 39px;
+  }
+
+  .item-price {
+    font-size: 13px;
+    color: var(--sage-deep);
+    font-weight: 600;
+  }
+
+  .pos-cart {
+    width: 340px;
+    flex-shrink: 0;
+    background: var(--paper);
+    border-left: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cart-title {
+    padding: 20px 22px 14px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .cart-items {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 16px;
+  }
+
+  .cart-empty {
+    color: var(--ink-soft);
+    font-size: 13px;
+    text-align: center;
+    padding: 44px 10px;
+  }
+
+  .cart-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 6px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .cart-row:last-child { border-bottom: none; }
+
+  .cart-row-thumb {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: var(--sage-soft);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cart-row-thumb svg { width: 60%; height: 60%; }
+
+  .cart-row-info { flex: 1; min-width: 0; }
+
+  .cart-row-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cart-row-price { font-size: 12px; color: var(--ink-soft); margin-top: 1px; }
+
+  .qty-control {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .qty-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: var(--cream);
+    color: var(--espresso);
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  .qty-btn:hover { border-color: var(--sage); }
+
+  .qty-num { font-size: 13px; width: 16px; text-align: center; }
+
+  .cart-row-amount {
+    font-size: 13px;
+    font-weight: 600;
+    width: 54px;
+    text-align: right;
+  }
+
+  .cart-summary {
+    padding: 16px 22px 20px;
+    border-top: 1px solid var(--line);
+  }
+
+  .summary-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+
+  .summary-total {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--espresso);
+    margin: 10px 0 16px;
+  }
+
+  .checkout-btn {
+    width: 100%;
+    background: var(--espresso);
+    color: var(--cream);
+    border: none;
+    border-radius: 10px;
+    padding: 13px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .checkout-btn:hover:not(:disabled) { background: var(--espresso-deep); }
+  .checkout-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(42, 29, 21, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 20px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal-box {
+    background: var(--paper);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 380px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 28px;
+  }
+
+  .modal-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .modal-sub { font-size: 13px; color: var(--ink-soft); margin-bottom: 20px; }
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .cash-input {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 15px;
+    margin-bottom: 12px;
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+  }
+
+  .cash-input:focus { outline: 2px solid var(--sage); border-color: var(--sage); }
+
+  .change-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    padding: 12px 0 2px;
+    border-top: 1px dashed var(--line);
+    margin-top: 4px;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .btn-secondary {
+    flex: 1;
+    padding: 11px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--espresso);
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .btn-primary {
+    flex: 1.4;
+    padding: 11px;
+    border-radius: 10px;
+    border: none;
+    background: var(--sage);
+    color: white;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary:hover:not(:disabled) { background: var(--sage-deep); }
+
+  /* Receipt */
+  .receipt-paper {
+    font-family: 'Courier New', monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+    background: var(--paper);
+    border: 1px dashed var(--line);
+    border-radius: 6px;
+    padding: 18px 16px;
+    margin-top: 4px;
+  }
+
+  .receipt-center { text-align: center; }
+  .receipt-bold { font-weight: 700; }
+  .receipt-line { display: flex; justify-content: space-between; }
+  .receipt-hr { border: none; border-top: 1px dashed var(--ink-soft); margin: 8px 0; }
+
+  @media print {
+    body * { visibility: hidden; }
+    .receipt-paper, .receipt-paper * { visibility: visible; }
+    .receipt-paper {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      border: none;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .pos-body { flex-direction: column; }
+    .pos-cart { width: 100%; border-left: none; border-top: 1px solid var(--line); }
+  }
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+
+<div id="pos-root">
+  <div class="pos-header">
+    <div>
+      <div class="pos-brand">Brew <span>&amp;</span> Bloom Café</div>
+      <div class="pos-sub">Point of Sale — Davao City</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <div class="pos-sub" id="clock-display"></div>
+      <button class="history-btn" id="history-btn">Order History</button>
+    </div>
+  </div>
+
+  <div class="pos-body">
+    <div class="pos-main">
+      <div class="cat-tabs" id="cat-tabs"></div>
+      <div class="item-grid" id="item-grid"></div>
+    </div>
+
+    <div class="pos-cart">
+      <div class="cart-title">Current Order</div>
+      <div class="cart-items" id="cart-items">
+        <div class="cart-empty">No items yet — tap a product to add it.</div>
+      </div>
+      <div class="cart-summary">
+        <div class="summary-line"><span>Subtotal</span><span id="sum-subtotal">₱0.00</span></div>
+        <div class="summary-line"><span>VAT (12%, incl.)</span><span id="sum-vat">₱0.00</span></div>
+        <div class="summary-total"><span>Total</span><span id="sum-total">₱0.00</span></div>
+        <button class="checkout-btn" id="checkout-btn" disabled>Charge Total</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="checkout-modal">
+  <div class="modal-box">
+    <div class="modal-title">Take Payment</div>
+    <div class="modal-sub" id="modal-total-sub">Total due: ₱0.00</div>
+
+    <label class="field-label" for="cash-tendered">Cash tendered (₱)</label>
+    <input class="cash-input" id="cash-tendered" type="number" inputmode="decimal" placeholder="0.00" min="0" step="0.01">
+
+    <div class="change-line"><span>Change</span><span id="change-amount" class="receipt-bold">₱0.00</span></div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" id="cancel-checkout">Cancel</button>
+      <button class="btn-primary" id="confirm-checkout" disabled>Confirm Sale</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="receipt-modal">
+  <div class="modal-box">
+    <div class="modal-title">Sale Complete</div>
+    <div class="modal-sub">Receipt ready to print</div>
+
+    <div class="receipt-paper" id="receipt-content"></div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" id="new-sale-btn">New Sale</button>
+      <button class="btn-primary" id="print-btn">Print Receipt</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="history-modal">
+  <div class="modal-box" style="max-width: 420px;">
+    <div class="modal-title">Order History</div>
+    <div class="modal-sub">All sales completed this session</div>
+
+    <div id="history-summary-wrap"></div>
+    <div class="history-list" id="history-list"></div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" id="close-history-btn" style="flex: 1;">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="history-detail-modal">
+  <div class="modal-box">
+    <button class="back-link" id="history-detail-back">&larr; Back to history</button>
+    <div class="modal-title">Order Receipt</div>
+    <div class="modal-sub">Reprint or review this sale</div>
+
+    <div class="receipt-paper" id="history-detail-content"></div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" id="history-detail-close" style="flex: 1;">Close</button>
+      <button class="btn-primary" id="history-detail-print" style="flex: 1;">Print</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  // Simple line-art icons, one per category, drawn in the café's palette.
+  const ICONS = {
+    'Beverages - Hot': `<svg viewBox="0 0 48 48" fill="none" stroke="#6E7B57" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 20h22v10a8 8 0 0 1-8 8h-6a8 8 0 0 1-8-8V20z"/>
+      <path d="M32 22h3a5 5 0 0 1 0 10h-3"/>
+      <path d="M16 8c-1.5 2 1.5 3-.5 6M23 8c-1.5 2 1.5 3-.5 6M30 8c-1.5 2 1.5 3-.5 6" stroke-linecap="round"/>
+    </svg>`,
+    'Beverages - Cold': `<svg viewBox="0 0 48 48" fill="none" stroke="#6E7B57" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 14h20l-2.2 24a2 2 0 0 1-2 1.8H18.2a2 2 0 0 1-2-1.8L14 14z"/>
+      <path d="M14 14l-2-6h24l-2 6"/>
+      <path d="M27 9v-4M27 5l2.5 1.5M27 5l-2.5 1.5" />
+      <path d="M18 20h12M18.7 27h10.6" stroke-dasharray="1 3.4"/>
+    </svg>`,
+    'Pastries': `<svg viewBox="0 0 48 48" fill="none" stroke="#6E7B57" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 30c0-9 5-17 16-17s16 8 16 17c-4-3-7 2-10.5 0S22 27 19 30s-7-3-11 0z"/>
+      <path d="M13 30c1 3 2 6 2 8h18c0-2 1-5 2-8"/>
+    </svg>`,
+    'Snacks': `<svg viewBox="0 0 48 48" fill="none" stroke="#6E7B57" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 24 24 9l18 15"/>
+      <path d="M9 24v9a2 2 0 0 0 2 2h26a2 2 0 0 0 2-2v-9"/>
+      <path d="M6 24h36"/>
+      <path d="M14 24v11M34 24v11" stroke-dasharray="1 3.4"/>
+    </svg>`,
+    'Desserts': `<svg viewBox="0 0 48 48" fill="none" stroke="#6E7B57" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 26l14-14 14 14"/>
+      <path d="M10 26v9a2 2 0 0 0 2 2h24a2 2 0 0 0 2-2v-9z"/>
+      <path d="M24 12V6M24 6l2.3 1.4M24 6l-2.3 1.4"/>
+      <path d="M17 34v-8M24 34v-8M31 34v-8" stroke-dasharray="1 3"/>
+    </svg>`,
+  };
+
+  const MENU = [
+    // Beverages - Hot
+    { id: 'coffee', name: 'Brewed Coffee (Hot)', cat: 'Beverages - Hot', price: 65 },
+    { id: 'americano-hot', name: 'Americano (Hot)', cat: 'Beverages - Hot', price: 80 },
+    { id: 'latte', name: 'Café Latte', cat: 'Beverages - Hot', price: 95 },
+    { id: 'cappuccino', name: 'Cappuccino', cat: 'Beverages - Hot', price: 95 },
+    { id: 'flat-white', name: 'Flat White', cat: 'Beverages - Hot', price: 100 },
+    { id: 'mocha-hot', name: 'Café Mocha', cat: 'Beverages - Hot', price: 105 },
+    { id: 'macchiato-hot', name: 'Espresso Macchiato', cat: 'Beverages - Hot', price: 90 },
+    { id: 'espresso-shot', name: 'Espresso Shot', cat: 'Beverages - Hot', price: 60 },
+    { id: 'hot-choco', name: 'Hot Chocolate', cat: 'Beverages - Hot', price: 90 },
+    { id: 'hot-tea', name: 'Brewed Tea', cat: 'Beverages - Hot', price: 70 },
+    { id: 'matcha-hot', name: 'Matcha Latte (Hot)', cat: 'Beverages - Hot', price: 115 },
+    { id: 'chai-hot', name: 'Chai Latte (Hot)', cat: 'Beverages - Hot', price: 110 },
+
+    // Beverages - Cold
+    { id: 'iced-americano', name: 'Iced Americano', cat: 'Beverages - Cold', price: 85 },
+    { id: 'iced-latte', name: 'Iced Café Latte', cat: 'Beverages - Cold', price: 100 },
+    { id: 'iced-caramel', name: 'Iced Caramel Macchiato', cat: 'Beverages - Cold', price: 110 },
+    { id: 'iced-mocha', name: 'Iced Café Mocha', cat: 'Beverages - Cold', price: 115 },
+    { id: 'iced-matcha', name: 'Iced Matcha Latte', cat: 'Beverages - Cold', price: 120 },
+    { id: 'iced-chai', name: 'Iced Chai Latte', cat: 'Beverages - Cold', price: 115 },
+    { id: 'cold-brew', name: 'Cold Brew', cat: 'Beverages - Cold', price: 105 },
+    { id: 'frappe-caramel', name: 'Caramel Frappé', cat: 'Beverages - Cold', price: 130 },
+    { id: 'frappe-mocha', name: 'Mocha Frappé', cat: 'Beverages - Cold', price: 130 },
+    { id: 'iced-tea', name: 'Iced Tea', cat: 'Beverages - Cold', price: 65 },
+    { id: 'fruit-soda', name: 'Fruit Soda (Blue Lemonade)', cat: 'Beverages - Cold', price: 95 },
+    { id: 'fresh-lemonade', name: 'Fresh Lemonade', cat: 'Beverages - Cold', price: 85 },
+
+    // Pastries
+    { id: 'croissant', name: 'Butter Croissant', cat: 'Pastries', price: 75 },
+    { id: 'choc-croissant', name: 'Chocolate Croissant', cat: 'Pastries', price: 85 },
+    { id: 'almond-croissant', name: 'Almond Croissant', cat: 'Pastries', price: 95 },
+    { id: 'muffin', name: 'Blueberry Muffin', cat: 'Pastries', price: 70 },
+    { id: 'choc-muffin', name: 'Double Chocolate Muffin', cat: 'Pastries', price: 75 },
+    { id: 'banana-bread', name: 'Banana Bread Slice', cat: 'Pastries', price: 70 },
+    { id: 'cinnamon-roll', name: 'Cinnamon Roll', cat: 'Pastries', price: 85 },
+    { id: 'danish', name: 'Cheese Danish', cat: 'Pastries', price: 80 },
+    { id: 'scone', name: 'Buttermilk Scone', cat: 'Pastries', price: 75 },
+    { id: 'donut-glazed', name: 'Glazed Donut', cat: 'Pastries', price: 55 },
+
+    // Snacks
+    { id: 'sandwich', name: 'Ham & Cheese Sandwich', cat: 'Snacks', price: 120 },
+    { id: 'club-sandwich', name: 'Club Sandwich', cat: 'Snacks', price: 145 },
+    { id: 'tuna-sandwich', name: 'Tuna Sandwich', cat: 'Snacks', price: 125 },
+    { id: 'grilled-cheese', name: 'Grilled Cheese Panini', cat: 'Snacks', price: 130 },
+    { id: 'hotdog-sandwich', name: 'Hotdog on a Bun', cat: 'Snacks', price: 95 },
+    { id: 'nachos', name: 'Loaded Nachos', cat: 'Snacks', price: 150 },
+    { id: 'fries', name: 'Café Fries', cat: 'Snacks', price: 90 },
+    { id: 'pasta-carbonara', name: 'Carbonara Pasta', cat: 'Snacks', price: 165 },
+
+    // Desserts
+    { id: 'cheesecake', name: 'Basque Burnt Cheesecake', cat: 'Desserts', price: 145 },
+    { id: 'choc-cake', name: 'Chocolate Fudge Cake', cat: 'Desserts', price: 130 },
+    { id: 'tiramisu', name: 'Tiramisu Cup', cat: 'Desserts', price: 135 },
+    { id: 'brownie', name: 'Fudge Brownie', cat: 'Desserts', price: 75 },
+    { id: 'cookies', name: 'Chocolate Chip Cookie', cat: 'Desserts', price: 55 },
+  ];
+
+  const CATEGORIES = ['All', ...Array.from(new Set(MENU.map(i => i.cat)))];
+  const VAT_RATE = 0.12; // inclusive
+
+  let activeCat = 'All';
+  let cart = {}; // id -> qty
+  let receiptCounter = 100;
+  let salesHistory = []; // completed sales, most recent last
+
+  const peso = n => '₱' + n.toFixed(2);
+  const iconFor = item => ICONS[item.cat] || '';
+
+  const catTabsEl = document.getElementById('cat-tabs');
+  const itemGridEl = document.getElementById('item-grid');
+  const cartItemsEl = document.getElementById('cart-items');
+  const checkoutBtn = document.getElementById('checkout-btn');
+  const clockEl = document.getElementById('clock-display');
+
+  function renderClock() {
+    const now = new Date();
+    clockEl.textContent = now.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) +
+      '  ' + now.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
+  }
+  renderClock();
+  setInterval(renderClock, 30000);
+
+  function renderTabs() {
+    catTabsEl.innerHTML = '';
+    CATEGORIES.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'cat-tab' + (cat === activeCat ? ' active' : '');
+      btn.textContent = cat;
+      btn.onclick = () => { activeCat = cat; renderTabs(); renderGrid(); };
+      catTabsEl.appendChild(btn);
+    });
+  }
+
+  function renderGrid() {
+    itemGridEl.innerHTML = '';
+    const items = activeCat === 'All' ? MENU : MENU.filter(i => i.cat === activeCat);
+    items.forEach(item => {
+      const card = document.createElement('button');
+      card.className = 'item-card';
+      card.innerHTML = `
+        <div class="item-thumb">${iconFor(item)}</div>
+        <div class="item-info">
+          <div class="item-name">${item.name}</div>
+          <div class="item-price">${peso(item.price)}</div>
+        </div>
+      `;
+      card.onclick = () => { cart[item.id] = (cart[item.id] || 0) + 1; renderCart(); };
+      itemGridEl.appendChild(card);
+    });
+  }
+
+  function cartLines() {
+    return Object.entries(cart)
+      .filter(([, qty]) => qty > 0)
+      .map(([id, qty]) => ({ ...MENU.find(m => m.id === id), qty }));
+  }
+
+  function computeTotals(lines) {
+    const total = lines.reduce((sum, l) => sum + l.price * l.qty, 0);
+    const vat = total - total / (1 + VAT_RATE);
+    const subtotal = total - vat;
+    return { subtotal, vat, total };
+  }
+
+  function renderCart() {
+    const lines = cartLines();
+    cartItemsEl.innerHTML = '';
+
+    if (lines.length === 0) {
+      cartItemsEl.innerHTML = '<div class="cart-empty">No items yet — tap a product to add it.</div>';
+    } else {
+      lines.forEach(line => {
+        const row = document.createElement('div');
+        row.className = 'cart-row';
+        row.innerHTML = `
+          <div class="cart-row-thumb">${iconFor(line)}</div>
+          <div class="cart-row-info">
+            <div class="cart-row-name">${line.name}</div>
+            <div class="cart-row-price">${peso(line.price)} each</div>
+          </div>
+          <div class="qty-control">
+            <button class="qty-btn" data-action="dec">−</button>
+            <span class="qty-num">${line.qty}</span>
+            <button class="qty-btn" data-action="inc">+</button>
+          </div>
+          <div class="cart-row-amount">${peso(line.price * line.qty)}</div>
+        `;
+        row.querySelector('[data-action="inc"]').onclick = () => { cart[line.id]++; renderCart(); };
+        row.querySelector('[data-action="dec"]').onclick = () => {
+          cart[line.id]--;
+          if (cart[line.id] <= 0) delete cart[line.id];
+          renderCart();
+        };
+        cartItemsEl.appendChild(row);
+      });
+    }
+
+    const { subtotal, vat, total } = computeTotals(lines);
+    document.getElementById('sum-subtotal').textContent = peso(subtotal);
+    document.getElementById('sum-vat').textContent = peso(vat);
+    document.getElementById('sum-total').textContent = peso(total);
+    checkoutBtn.disabled = lines.length === 0;
+  }
+
+  // Checkout modal
+  const checkoutModal = document.getElementById('checkout-modal');
+  const cashInput = document.getElementById('cash-tendered');
+  const changeAmountEl = document.getElementById('change-amount');
+  const confirmBtn = document.getElementById('confirm-checkout');
+
+  checkoutBtn.onclick = () => {
+    const { total } = computeTotals(cartLines());
+    document.getElementById('modal-total-sub').textContent = 'Total due: ' + peso(total);
+    cashInput.value = '';
+    changeAmountEl.textContent = peso(0);
+    confirmBtn.disabled = true;
+    checkoutModal.classList.add('open');
+    setTimeout(() => cashInput.focus(), 50);
+  };
+
+  document.getElementById('cancel-checkout').onclick = () => checkoutModal.classList.remove('open');
+
+  cashInput.oninput = () => {
+    const { total } = computeTotals(cartLines());
+    const cash = parseFloat(cashInput.value) || 0;
+    const change = cash - total;
+    changeAmountEl.textContent = peso(Math.max(change, 0));
+    confirmBtn.disabled = cash < total;
+  };
+
+  confirmBtn.onclick = () => {
+    const lines = cartLines();
+    const { subtotal, vat, total } = computeTotals(lines);
+    const cash = parseFloat(cashInput.value) || 0;
+    const change = cash - total;
+    receiptCounter++;
+
+    const sale = { lines, subtotal, vat, total, cash, change, id: receiptCounter, time: new Date() };
+    salesHistory.push(sale);
+    renderReceipt(sale, 'receipt-content');
+
+    checkoutModal.classList.remove('open');
+    document.getElementById('receipt-modal').classList.add('open');
+
+    cart = {};
+    renderCart();
+  };
+
+  function renderReceipt(sale, targetId) {
+    const itemLines = sale.lines.map(l =>
+      `<div class="receipt-line"><span>${l.name} x${l.qty}</span><span>${peso(l.price * l.qty)}</span></div>`
+    ).join('');
+
+    document.getElementById(targetId).innerHTML = `
+      <div class="receipt-center receipt-bold">BREW &amp; BLOOM CAFÉ</div>
+      <div class="receipt-center">Poblacion District, Davao City, 8000 Davao del Sur</div>
+      <div class="receipt-center">Tel: 0912-345-6789</div>
+      <div class="receipt-center">VAT Reg TIN: 000-111-222-000</div>
+      <hr class="receipt-hr">
+      <div class="receipt-center receipt-bold">Official Receipt</div>
+      <div>Receipt No: 0${sale.id}</div>
+      <div>Date: ${sale.time.toLocaleDateString('en-PH')} ${sale.time.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' })}</div>
+      <hr class="receipt-hr">
+      ${itemLines}
+      <hr class="receipt-hr">
+      <div class="receipt-line"><span>Subtotal</span><span>${peso(sale.subtotal)}</span></div>
+      <div class="receipt-line"><span>VAT (12%, incl.)</span><span>${peso(sale.vat)}</span></div>
+      <div class="receipt-line receipt-bold"><span>TOTAL</span><span>${peso(sale.total)}</span></div>
+      <div class="receipt-line"><span>Cash Tendered</span><span>${peso(sale.cash)}</span></div>
+      <div class="receipt-line"><span>Change</span><span>${peso(sale.change)}</span></div>
+      <hr class="receipt-hr">
+      <div class="receipt-center receipt-bold">Thank you for visiting!</div>
+      <div class="receipt-center">Follow us: @brewandbloomdvo</div>
+    `;
+  }
+
+  document.getElementById('new-sale-btn').onclick = () => {
+    document.getElementById('receipt-modal').classList.remove('open');
+  };
+
+  document.getElementById('print-btn').onclick = () => window.print();
+
+  // Order history
+  const historyModal = document.getElementById('history-modal');
+  const historyDetailModal = document.getElementById('history-detail-modal');
+  const historyListEl = document.getElementById('history-list');
+  const historySummaryEl = document.getElementById('history-summary-wrap');
+
+  function dayLabel(date) {
+    const today = new Date();
+    const isToday = date.toDateString() === today.toDateString();
+    return isToday ? 'Today' : date.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function renderHistory() {
+    historyListEl.innerHTML = '';
+
+    if (salesHistory.length === 0) {
+      historySummaryEl.innerHTML = '';
+      historyListEl.innerHTML = '<div class="history-empty">No completed sales yet this session.</div>';
+      return;
+    }
+
+    const totalRevenue = salesHistory.reduce((s, sale) => s + sale.total, 0);
+    const itemCount = salesHistory.reduce((s, sale) => s + sale.lines.reduce((n, l) => n + l.qty, 0), 0);
+    historySummaryEl.innerHTML = `
+      <div class="history-summary">
+        <span>${salesHistory.length} order${salesHistory.length === 1 ? '' : 's'} · ${itemCount} item${itemCount === 1 ? '' : 's'}</span>
+        <strong>${peso(totalRevenue)}</strong>
+      </div>
+    `;
+
+    let lastDay = null;
+    // most recent first
+    [...salesHistory].reverse().forEach(sale => {
+      const label = dayLabel(sale.time);
+      if (label !== lastDay) {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'history-day-label';
+        dayEl.textContent = label;
+        historyListEl.appendChild(dayEl);
+        lastDay = label;
+      }
+
+      const itemSummary = sale.lines.map(l => `${l.name} x${l.qty}`).join(', ');
+      const row = document.createElement('button');
+      row.className = 'history-row';
+      row.innerHTML = `
+        <div class="history-row-left">
+          <div class="history-row-id">Receipt #0${sale.id}</div>
+          <div class="history-row-meta">${sale.time.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' })} · ${itemSummary}</div>
+        </div>
+        <div class="history-row-total">${peso(sale.total)}</div>
+      `;
+      row.onclick = () => {
+        renderReceipt(sale, 'history-detail-content');
+        historyModal.classList.remove('open');
+        historyDetailModal.classList.add('open');
+      };
+      historyListEl.appendChild(row);
+    });
+  }
+
+  document.getElementById('history-btn').onclick = () => {
+    renderHistory();
+    historyModal.classList.add('open');
+  };
+  document.getElementById('close-history-btn').onclick = () => historyModal.classList.remove('open');
+
+  document.getElementById('history-detail-back').onclick = () => {
+    historyDetailModal.classList.remove('open');
+    historyModal.classList.add('open');
+  };
+  document.getElementById('history-detail-close').onclick = () => historyDetailModal.classList.remove('open');
+  document.getElementById('history-detail-print').onclick = () => window.print();
+
+  renderTabs();
+  renderGrid();
+  renderCart();
+})();
+</script>
