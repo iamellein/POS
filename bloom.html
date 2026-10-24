@@ -389,6 +389,7 @@
     <p class="page-foot">Educational prototype only. Not a clinical decision-support system. Defaults are illustrative and may not reflect current national guidance or any institution's approved meal policy.</p>
   </main>
 
+  <script src="engine.js"></script>
   <script>
     (() => {
       const MEALS = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
@@ -693,18 +694,9 @@
         validateButton.disabled = true;
         validateButton.textContent = 'Checking rules...';
         try {
-          const response = await fetch('/api/validate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          });
-          const result = await response.json();
-          if (!response.ok) throw new Error(result.error || 'The validation request could not be completed.');
-          renderReport(result);
+          renderReport(window.PolicyRuleEngine.validateMealPlan(payload));
         } catch (error) {
-          errorBox.textContent = error.message === 'Failed to fetch'
-            ? 'Cannot reach the local policy engine. Start it with “node server.js” and reload this page.'
-            : error.message;
+          errorBox.textContent = error.message || 'The meal plan could not be validated.';
           errorBox.classList.add('visible');
         } finally {
           validateButton.disabled = false;

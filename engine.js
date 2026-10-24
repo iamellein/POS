@@ -146,4 +146,12 @@ function validateMealPlan(input) {
   };
 }
 
-module.exports = { DEFAULT_THRESHOLDS, POLICIES, validateMealPlan };
+const policyRuleEngine = { DEFAULT_THRESHOLDS, POLICIES, validateMealPlan };
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = policyRuleEngine;
+}
+
+if (typeof globalThis !== 'undefined') {
+  globalThis.PolicyRuleEngine = policyRuleEngine;
+}

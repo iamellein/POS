@@ -16,15 +16,16 @@ Open http://127.0.0.1:3000. Run the unit tests with:
 node --test engine.test.js
 ```
 
-## Publish as a website
+## Publish on GitHub Pages
 
-This project includes a Render Blueprint in `render.yaml` because GitHub Pages cannot run the Node.js validation API.
+The rule engine runs in the browser, so the public site does not need a Node server. A GitHub Actions workflow deploys the static app whenever changes are pushed to `main`.
 
-1. Push the project to the `main` branch of the connected GitHub repository.
-2. In Render, choose **New** > **Blueprint** and connect `iamellein/POS`.
-3. Deploy the service defined by `render.yaml`. Render will provide a public `onrender.com` URL.
+1. In the repository on GitHub, open **Settings** > **Pages**.
+2. Under **Build and deployment**, select **GitHub Actions** as the source.
+3. Push to `main` or manually run the **Deploy to GitHub Pages** workflow in the **Actions** tab.
+4. After the workflow succeeds, open the published URL shown in the `github-pages` deployment environment. For this repository it will normally be `https://iamellein.github.io/POS/`.
 
-The free service may take a short time to wake after inactivity. The browser app and `/api/validate` endpoint are served by the same Node process.
+The browser version and Node API use the same `engine.js` validation rules. Nutrient values remain user-entered.
 
 ## Included demonstration rules
 
