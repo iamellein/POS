@@ -86,13 +86,22 @@
     .preview-status.error { color: #a14935; }
     .preview-content { min-height: 410px; max-height: 610px; overflow: auto; border: 1px solid #e8dcdf; border-radius: 3px; background: #fffafa; }
     pre { margin: 0; padding: 14px; color: #59464a; font: 10px/1.55 Consolas, 'Courier New', monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
-    .note-view { display: none; padding: 15px; }
+    .note-view { display: none; padding: 22px; }
     .note-view.visible { display: block; }
-    .note-line { padding: 9px 0; border-bottom: 1px solid #eee4e6; }
+    .document-header { padding-bottom: 14px; border-bottom: 2px solid #873b45; }
+    .document-eyebrow { color: var(--green); font-size: 8px; font-weight: 700; letter-spacing: 0; text-transform: uppercase; }
+    .document-title { margin: 4px 0 8px; color: #332a2c; font: 600 21px/1.2 'Fraunces', Georgia, serif; }
+    .document-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px 14px; color: #584d4f; font-size: 9px; }
+    .document-meta strong { color: #393033; }
+    .draft-stamp { display: inline-block; margin-top: 9px; padding: 3px 6px; border: 1px solid #e7c9ca; color: #823941; background: #fff6f5; font-size: 8px; font-weight: 700; text-transform: uppercase; }
+    .note-line { padding: 14px 0 12px; border-bottom: 1px solid #eee4e6; }
     .note-line:last-child { border-bottom: 0; }
-    .note-kicker { color: var(--green); font-size: 8px; font-weight: 700; text-transform: uppercase; }
-    .note-text { margin-top: 3px; color: #44393b; font-size: 11px; white-space: pre-wrap; }
-    .preview-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .note-kicker { margin-bottom: 8px; color: var(--green); font-size: 9px; font-weight: 700; text-transform: uppercase; }
+    .note-item + .note-item { margin-top: 7px; }
+    .note-label { color: #6a5357; font-size: 8px; font-weight: 700; text-transform: uppercase; }
+    .note-text { margin-top: 2px; color: #373033; font-size: 10px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .term-reference { color: #716669; font-size: 8px; }
+    .preview-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
     .button { min-height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 7px 10px; border: 1px solid #e2d5d8; border-radius: 3px; color: var(--green); background: white; font-size: 10px; font-weight: 700; transition: background .15s ease, transform .15s ease; }
     .button:hover { background: #fbf1f2; }
     .button:active { transform: translateY(1px); }
@@ -104,6 +113,20 @@
     .api-details summary { color: var(--blue); cursor: pointer; font-size: 10px; font-weight: 700; }
     .api-details code { display: block; margin-top: 7px; padding: 8px; border-radius: 3px; color: #5d4858; background: var(--blue-soft); font: 9px/1.5 Consolas, monospace; overflow-wrap: anywhere; }
     .footer { margin-top: 16px; color: var(--muted); font-size: 9px; }
+    @media print {
+      @page { size: auto; margin: 16mm; }
+      body { color: #222; background: #fff; font: 10pt/1.5 Georgia, serif; }
+      .masthead, .page-intro, .workflow, .editor, .preview-tabs, .preview-status, .preview-actions, .api-details, .notice, .footer { display: none !important; }
+      .page, .workspace { display: block; width: 100%; margin: 0; padding: 0; }
+      .preview-panel { position: static; display: block; overflow: visible; border: 0; box-shadow: none; }
+      .preview-panel > .panel-head { padding: 0 0 10px; border-bottom: 1px solid #aaa; background: #fff; }
+      .preview-panel > .panel-head h2, .preview-panel > .panel-head .panel-caption { display: none; }
+      .preview-panel > .panel-body { padding: 0; }
+      .preview-content { min-height: 0; max-height: none; overflow: visible; border: 0; background: #fff; }
+      #json-preview { display: none !important; }
+      .note-view, .note-view.visible { display: block !important; padding: 0; }
+      .note-line { break-inside: avoid; }
+    }
     @keyframes reveal { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 920px) { .workspace { grid-template-columns: minmax(0, 1fr); } .preview-panel { position: static; } .preview-content { min-height: 300px; } }
     @media (max-width: 600px) {
@@ -215,7 +238,7 @@
   "terminology": { "system": "eNCPT", "release": "Demo mapping only" },
   "status": "Draft; not yet validated"
 }</pre><div class="note-view" id="note-preview"></div></div>
-          <div class="preview-actions"><button class="button button-primary" id="copy-json" type="button" disabled>Copy JSON</button><button class="button" id="download-json" type="button" disabled>Download JSON</button></div>
+          <div class="preview-actions"><button class="button button-primary" id="copy-json" type="button" disabled>Copy JSON</button><button class="button" id="download-json" type="button" disabled>Download JSON</button><button class="button" id="print-note" type="button" disabled>Print note</button></div>
           <details class="api-details"><summary>Postman endpoint</summary><code>POST /api/clinical-notes<br>Content-Type: application/json<br>Schema: GET /clinical-note.schema.json</code></details>
           <div class="notice"><strong>Training template only.</strong> Built-in codes and labels are demo placeholders, not official eNCPT mappings. Use your organization's licensed terminology release and clinical documentation policies. Do not enter real patient identifiers in this demo.</div>
         </div>
@@ -235,6 +258,7 @@
       let activeView = 'json';
       const byId = id => document.getElementById(id);
       const value = id => byId(id).value.trim();
+      const cleanEvidence = () => value('pes-evidence').replace(/[.!?]+$/, '');
       const term = (codeId, labelId) => ({ code: value(codeId), label: value(labelId), catalogRelease: value('release') });
 
       const today = new Date();
@@ -261,8 +285,8 @@
           diagnosis: {
             problem: term('problem-code', 'problem-label'),
             etiology: term('etiology-code', 'etiology-label'),
-            signsSymptoms: [{ ...term('sign-code', 'sign-label'), evidence: value('pes-evidence') }],
-            pesStatement: `${value('problem-label')} related to ${value('etiology-label')} as evidenced by ${value('sign-label')}${value('pes-evidence') ? ` (${value('pes-evidence')})` : ''}.`,
+            signsSymptoms: [term('sign-code', 'sign-label')],
+            pesStatement: `${value('problem-label')} related to ${value('etiology-label')} as evidenced by ${cleanEvidence()}.`,
           },
           intervention: {
             category: value('intervention-category'),
@@ -287,29 +311,88 @@
         const problem = value('problem-label') || '[Problem]';
         const etiology = value('etiology-label') || '[Etiology]';
         const signs = value('sign-label') || '[Signs/Symptoms]';
-        const evidence = value('pes-evidence');
+        const evidence = cleanEvidence();
         byId('pes-preview').textContent = `${problem} related to ${etiology} as evidenced by ${signs}${evidence ? ` (${evidence})` : ''}.`;
       }
 
       function renderNarrative(note) {
         notePreview.replaceChildren();
+        const header = document.createElement('header');
+        header.className = 'document-header';
+        const eyebrow = document.createElement('div');
+        eyebrow.className = 'document-eyebrow';
+        eyebrow.textContent = 'Nutrition care documentation';
+        const title = document.createElement('h3');
+        title.className = 'document-title';
+        title.textContent = 'Nutrition Care Process Note';
+        const metadata = document.createElement('div');
+        metadata.className = 'document-meta';
+        [
+          ['Patient ID', note.patient.localId],
+          ['Encounter date', note.patient.encounterDate],
+          ['Author', `${note.author.displayName}, ${note.author.credentials}`],
+          ['Terminology', `${note.terminology.system} · ${note.terminology.release}`],
+        ].forEach(([label, content]) => {
+          const item = document.createElement('div');
+          const strong = document.createElement('strong');
+          strong.textContent = `${label}: `;
+          item.append(strong, document.createTextNode(content));
+          metadata.append(item);
+        });
+        const stamp = document.createElement('div');
+        stamp.className = 'draft-stamp';
+        stamp.textContent = 'Training draft · Not part of the medical record';
+        header.append(eyebrow, title, metadata, stamp);
+        notePreview.append(header);
+
         const sections = [
-          ['Encounter', `Patient ${note.patient.localId} · ${note.patient.encounterDate} · ${note.author.displayName}, ${note.author.credentials}`],
-          ['Assessment', `${note.assessment.summary}\n${note.assessment.findings.map(item => `${item.domain}: ${item.value} ${item.unit} [${item.term.code} · ${item.term.label}; source: ${item.source}]`).join('\n')}`],
-          ['Nutrition diagnosis · PES', note.diagnosis.pesStatement],
-          ['Intervention', `${note.intervention.category}: ${note.intervention.term.label} [${note.intervention.term.code}]\n${note.intervention.actions.join('\n')}\nGoal: ${note.intervention.goal}`],
-          ['Monitoring & evaluation', `${note.monitoringEvaluation.indicators.map(item => `${item.term.label} [${item.term.code}]: baseline ${item.baseline}; target ${item.target}; ${item.timeframe}`).join('\n')}\nFollow-up: ${note.monitoringEvaluation.followUpDate}\n${note.monitoringEvaluation.progressNote}`],
+          ['Assessment', [
+            ['Summary', note.assessment.summary],
+            ...note.assessment.findings.map(item => [item.domain, `${item.value}${item.unit ? ` (${item.unit})` : ''}\nSource: ${item.source}`, item.term]),
+          ]],
+          ['Nutrition diagnosis', [
+            ['PES statement', note.diagnosis.pesStatement],
+            ['Problem', note.diagnosis.problem.label, note.diagnosis.problem],
+            ['Etiology', note.diagnosis.etiology.label, note.diagnosis.etiology],
+            ...note.diagnosis.signsSymptoms.map(item => ['Signs and symptoms', item.label, item]),
+          ]],
+          ['Intervention', [
+            ['Category', note.intervention.category],
+            ['Intervention', note.intervention.term.label, note.intervention.term],
+            ['Plan', note.intervention.actions.join('\n')],
+            ['Goal', note.intervention.goal],
+          ]],
+          ['Monitoring and evaluation', [
+            ...note.monitoringEvaluation.indicators.map(item => [item.term.label, `Baseline: ${item.baseline}\nTarget: ${item.target}\nTimeframe: ${item.timeframe}`, item.term]),
+            ['Follow-up date', note.monitoringEvaluation.followUpDate],
+            ['Evaluation / progress note', note.monitoringEvaluation.progressNote],
+          ]],
         ];
-        sections.forEach(([heading, body]) => {
+        sections.forEach(([heading, entries]) => {
           const line = document.createElement('div');
           line.className = 'note-line';
           const kicker = document.createElement('div');
           kicker.className = 'note-kicker';
           kicker.textContent = heading;
-          const text = document.createElement('div');
-          text.className = 'note-text';
-          text.textContent = body;
-          line.append(kicker, text);
+          line.append(kicker);
+          entries.forEach(([label, content, reference]) => {
+            const item = document.createElement('div');
+            item.className = 'note-item';
+            const itemLabel = document.createElement('div');
+            itemLabel.className = 'note-label';
+            itemLabel.textContent = label;
+            const text = document.createElement('div');
+            text.className = 'note-text';
+            text.textContent = content;
+            item.append(itemLabel, text);
+            if (reference?.code) {
+              const code = document.createElement('div');
+              code.className = 'term-reference';
+              code.textContent = `Terminology reference: ${reference.code} · ${reference.label}`;
+              item.append(code);
+            }
+            line.append(item);
+          });
           notePreview.append(line);
         });
       }
@@ -320,6 +403,7 @@
         renderNarrative(note);
         byId('copy-json').disabled = false;
         byId('download-json').disabled = false;
+        byId('print-note').disabled = false;
         document.querySelectorAll('.tab').forEach(button => {
           const selected = button.dataset.view === activeView;
           button.setAttribute('aria-selected', String(selected));
@@ -333,6 +417,7 @@
         currentNote = null;
         byId('copy-json').disabled = true;
         byId('download-json').disabled = true;
+        byId('print-note').disabled = true;
         status.className = 'preview-status';
         status.textContent = 'Form changed. Validate again to refresh the note.';
       }
@@ -401,6 +486,10 @@
         link.download = `nutrition-care-note-${currentNote.patient.encounterDate}.json`;
         link.click();
         URL.revokeObjectURL(url);
+      });
+
+      byId('print-note').addEventListener('click', () => {
+        if (currentNote) window.print();
       });
     })();
   </script>
