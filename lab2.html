@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173b35">
+  <title>Daywell | Meal &amp; Movement Journal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --forest: #173b35;
+      --forest-deep: #102c28;
+      --leaf: #50765e;
+      --mint: #e0ebdd;
+      --paper: #f4f6f0;
+      --white: #fff;
+      --ink: #222d29;
+      --muted: #68766e;
+      --line: #dce4dc;
+      --coral: #c85e43;
+      --coral-soft: #f8e9e2;
+      --blue: #47768a;
+      --blue-soft: #e8f1f4;
+      --gold: #e7bd67;
+      --shadow: 0 12px 30px rgba(23, 59, 53, .075);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      background-image: linear-gradient(135deg, #f1f5ef 0%, #fbf8f1 56%, #edf3f1 100%);
+      font: 14px/1.5 'DM Sans', sans-serif;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, label:focus-within { outline: 3px solid #9bb68f; outline-offset: 2px; }
+    .topbar { color: var(--white); background: var(--forest); border-bottom: 3px solid var(--gold); }
+    .topbar-inner { width: min(1180px, calc(100% - 40px)); min-height: 70px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 11px; }
+    .brand-mark { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 11px 11px 11px 3px; color: var(--forest-deep); background: #e7edb6; font: 700 22px 'Fraunces', Georgia, serif; }
+    .brand-name { font: 600 20px 'Fraunces', Georgia, serif; }
+    .brand-note { color: #c7d6ce; font-size: 11px; }
+    .lab-tag { padding: 7px 10px; border: 1px solid rgba(255,255,255,.25); border-radius: 3px; color: #e4eee6; font-size: 10px; font-weight: 700; }
+    .page { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 32px 0 52px; }
+    .welcome { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 24px; margin-bottom: 25px; animation: arrive .45s ease both; }
+    .welcome-side { display: flex; align-items: center; gap: 14px; }
+    .welcome-image { width: 132px; height: 104px; object-fit: cover; border-radius: 4px; box-shadow: 0 8px 20px rgba(23, 59, 53, .12); }
+    .eyebrow { color: var(--leaf); font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    h1 { margin: 8px 0 6px; color: var(--forest-deep); font: 600 37px/1.12 'Fraunces', Georgia, serif; }
+    .welcome p { max-width: 600px; margin: 0; color: var(--muted); }
+    .day-picker { display: grid; gap: 5px; color: var(--forest); font-size: 11px; font-weight: 700; }
+    .day-picker input { min-height: 39px; padding: 7px 10px; border: 1px solid #cbd6cb; border-radius: 4px; color: var(--ink); background: var(--white); }
+    .dashboard { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr); align-items: start; gap: 18px; }
+    .column { display: grid; gap: 18px; }
+    .panel { overflow: hidden; border: 1px solid var(--line); border-radius: 7px; background: var(--white); box-shadow: var(--shadow); animation: arrive .5s ease both; }
+    .column:last-child .panel { animation-delay: .08s; }
+    .panel-head { display: flex; align-items: start; justify-content: space-between; gap: 14px; padding: 18px 19px 14px; border-bottom: 1px solid var(--line); background: #fcfdf9; }
+    h2 { margin: 0; color: var(--forest-deep); font: 600 19px/1.2 'Fraunces', Georgia, serif; }
+    .panel-caption { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+    .panel-body { padding: 17px 19px 19px; }
+    .count { color: var(--muted); font-size: 11px; white-space: nowrap; }
+    .meal-form { display: grid; gap: 13px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+    .field { display: grid; gap: 5px; min-width: 0; }
+    .field label, .photo-label { color: var(--forest-deep); font-size: 11px; font-weight: 700; }
+    .field input, .field select, .field textarea { width: 100%; min-height: 39px; padding: 8px 10px; border: 1px solid #d3dbd2; border-radius: 3px; color: var(--ink); background: white; }
+    .field textarea { min-height: 65px; resize: vertical; }
+    .photo-picker { min-height: 88px; display: flex; align-items: center; justify-content: center; gap: 13px; padding: 13px; border: 1px dashed #d1a18f; border-radius: 4px; background: #fff8f2; cursor: pointer; transition: border-color .18s ease, background .18s ease; }
+    .photo-picker:hover { border-color: var(--coral); background: #fff2e9; }
+    .photo-symbol { width: 34px; height: 34px; display: grid; place-items: center; flex: 0 0 34px; border-radius: 50%; color: #fff; background: var(--coral); font-size: 16px; }
+    .photo-copy strong { display: block; color: var(--forest); font-size: 12px; }
+    .photo-copy span { color: var(--muted); font-size: 10px; }
+    .photo-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
+    .photo-preview { display: none; width: 100%; max-height: 210px; object-fit: cover; border: 1px solid var(--line); border-radius: 4px; }
+    .photo-preview.visible { display: block; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    .button { min-height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 3px; color: var(--forest); background: var(--white); font-size: 11px; font-weight: 700; transition: background .15s ease, border-color .15s ease, transform .15s ease; }
+    .button:hover { background: #f1f5ec; }
+    .button:active { transform: translateY(1px); }
+    .button-primary { border-color: var(--coral); color: white; background: var(--coral); }
+    .button-primary:hover { border-color: #aa4933; background: #aa4933; }
+    .button:disabled { opacity: .55; cursor: wait; }
+    .divider { height: 1px; margin: 17px 0 13px; background: var(--line); }
+    .log-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .log-heading h3 { margin: 0; color: var(--forest-deep); font: 600 15px 'Fraunces', Georgia, serif; }
+    .meal-list { display: grid; gap: 8px; }
+    .meal-card { display: grid; grid-template-columns: 60px minmax(0, 1fr) auto; align-items: center; gap: 11px; padding: 9px; border: 1px solid #e7eae4; border-radius: 4px; background: #fff; animation: arrive .25s ease both; transition: border-color .18s ease, box-shadow .18s ease; }
+    .meal-card:hover { border-color: #cbd9ce; box-shadow: 0 4px 14px rgba(23, 59, 53, .06); }
+    .meal-photo { width: 60px; height: 56px; object-fit: cover; border-radius: 3px; background: #edf1e8; }
+    .meal-photo.placeholder { display: grid; place-items: center; color: var(--leaf); font-size: 18px; }
+    .meal-kind { color: var(--leaf); font-size: 9px; font-weight: 700; text-transform: uppercase; }
+    .meal-name { overflow-wrap: anywhere; color: var(--forest-deep); font-weight: 700; }
+    .meal-time { color: var(--muted); font-size: 10px; }
+    .meal-note { margin-top: 2px; color: var(--muted); font-size: 10px; }
+    .remove-meal { width: 30px; height: 30px; border: 0; border-radius: 3px; color: #9d4b37; background: transparent; font-size: 17px; }
+    .remove-meal:hover { background: var(--coral-soft); }
+    .empty-state { padding: 19px 12px; border: 1px dashed #d4ddd2; border-radius: 4px; color: var(--muted); text-align: center; font-size: 11px; }
+    .sync-headline { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
+    .mock-badge { padding: 4px 7px; border-radius: 2px; color: #376979; background: var(--blue-soft); font-size: 9px; font-weight: 700; text-transform: uppercase; }
+    .provider-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin-top: 14px; }
+    .provider-row select { min-width: 0; min-height: 39px; padding: 7px 9px; border: 1px solid #d3dbd2; border-radius: 3px; color: var(--ink); background: white; }
+    .wearable-status { min-height: 18px; margin: 10px 0 0; color: var(--muted); font-size: 10px; }
+    .wearable-status.error { color: #9d4b37; }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 13px; }
+    .metric { min-width: 0; padding: 13px; border: 1px solid #e2e8df; border-radius: 4px; background: linear-gradient(145deg, #f8faf6, #f1f6f4); }
+    .metric-label { color: var(--muted); font-size: 10px; }
+    .metric-value { margin-top: 4px; color: var(--forest-deep); font: 600 25px/1.1 'Fraunces', Georgia, serif; }
+    .metric-unit { margin-left: 3px; color: var(--muted); font: 500 10px 'DM Sans', sans-serif; }
+    .progress-track { height: 5px; overflow: hidden; margin-top: 10px; border-radius: 5px; background: #e2e8df; }
+    .progress-fill { width: 0; height: 100%; border-radius: inherit; background: var(--leaf); transition: width .35s ease; }
+    .metric:nth-child(2) .progress-fill { background: var(--coral); }
+    .metric-sub { margin-top: 5px; color: var(--muted); font-size: 9px; }
+    .sync-foot { margin: 12px 0 0; padding-top: 11px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .daily-note { padding: 15px 17px; border-left: 3px solid var(--coral); color: #704e3f; background: linear-gradient(110deg, #fbefe5, #f8f2e7); font-size: 11px; line-height: 1.55; }
+    .daily-note strong { color: #5d392b; }
+    .footer { margin-top: 22px; color: var(--muted); font-size: 10px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    @keyframes arrive { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 800px) { .dashboard { grid-template-columns: minmax(0, 1fr); } }
+    @media (max-width: 560px) {
+      .topbar-inner, .page { width: min(100% - 28px, 520px); }
+      .topbar-inner { min-height: 62px; }
+      .brand-note { display: none; }
+      .lab-tag { font-size: 9px; }
+      .page { padding-top: 24px; }
+      .welcome { grid-template-columns: minmax(0, 1fr); align-items: start; gap: 14px; }
+      h1 { font-size: 32px; }
+      .welcome-side { justify-content: space-between; }
+      .welcome-image { width: 104px; height: 72px; }
+      .day-picker { grid-template-columns: auto minmax(0, 1fr); align-items: center; }
+      .panel-head, .panel-body { padding-left: 14px; padding-right: 14px; }
+      .form-row { grid-template-columns: 1fr; }
+      .meal-card { grid-template-columns: 52px minmax(0, 1fr) auto; gap: 8px; }
+      .meal-photo { width: 52px; height: 52px; }
+      .provider-row { grid-template-columns: 1fr; }
+      .provider-row .button { width: 100%; }
+      .metrics { gap: 7px; }
+      .metric { padding: 11px; }
+      .metric-value { font-size: 23px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">D</div>
+        <div><div class="brand-name">Daywell</div><div class="brand-note">Your meal &amp; movement journal</div></div>
+      </div>
+      <div class="lab-tag">LAB 02 · CONSUMER MHEALTH</div>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="welcome" aria-labelledby="page-title">
+      <div class="welcome-copy">
+        <div class="eyebrow">Daily check-in</div>
+        <h1 id="page-title">A little more in tune.</h1>
+        <p>Keep a simple record of what you eat and how you move. Your notes stay in this browser session.</p>
+      </div>
+      <div class="welcome-side">
+        <img class="welcome-image" src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&amp;fit=crop&amp;w=360&amp;h=280&amp;q=85" alt="A colorful bowl of fresh greens and vegetables" fetchpriority="high">
+        <label class="day-picker" for="journal-date">Journal date
+          <input id="journal-date" type="date">
+        </label>
+      </div>
+    </section>
+
+    <div class="dashboard">
+      <div class="column">
+        <section class="panel" aria-labelledby="meal-heading">
+          <div class="panel-head">
+            <div><h2 id="meal-heading">Add to your food log</h2><p class="panel-caption">Capture a meal, snack, or a quick photo note.</p></div>
+            <span class="count" id="meal-count" aria-live="polite">0 entries</span>
+          </div>
+          <div class="panel-body">
+            <form class="meal-form" id="meal-form">
+              <div class="form-row">
+                <div class="field"><label for="meal-type">Meal</label>
+                  <select id="meal-type" required><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option></select>
+                </div>
+                <div class="field"><label for="meal-time">Time</label><input id="meal-time" type="time" required></div>
+              </div>
+              <div class="field"><label for="meal-name">What did you have?</label><input id="meal-name" type="text" maxlength="100" placeholder="e.g. avocado toast and a pear" required></div>
+              <div class="field"><label for="meal-note">Note <span style="font-weight:400;color:var(--muted)">(optional)</span></label><textarea id="meal-note" maxlength="220" placeholder="A detail you want to remember"></textarea></div>
+              <div class="field">
+                <span class="photo-label">Meal photo <span style="font-weight:400;color:var(--muted)">(optional)</span></span>
+                <label class="photo-picker" for="meal-photo">
+                  <span class="photo-symbol" aria-hidden="true">+</span>
+                  <span class="photo-copy"><strong id="photo-prompt">Add a photo</strong><span>Choose an image or use your camera</span></span>
+                </label>
+                <input class="photo-input" id="meal-photo" type="file" accept="image/*" capture="environment">
+                <img class="photo-preview" id="photo-preview" alt="Selected meal photo preview">
+              </div>
+              <div class="form-actions"><button class="button button-primary" type="submit">Add meal <span aria-hidden="true">+</span></button></div>
+            </form>
+            <div class="divider"></div>
+            <div class="log-heading"><h3>Today's log</h3><span class="count" id="log-date-label"></span></div>
+            <div class="meal-list" id="meal-list" aria-live="polite"></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="column">
+        <section class="panel" aria-labelledby="activity-heading">
+          <div class="panel-head">
+            <div class="sync-headline"><div><h2 id="activity-heading">Movement today</h2><p class="panel-caption">Bring in activity from a wearable service.</p></div></div>
+            <span class="mock-badge">API simulation</span>
+          </div>
+          <div class="panel-body">
+            <div class="provider-row">
+              <label class="sr-only" for="wearable-provider">Wearable provider</label>
+              <select id="wearable-provider"><option value="googleFit">Google Fit</option><option value="appleHealth">Apple Health</option></select>
+              <button class="button button-primary" id="sync-button" type="button">Sync activity</button>
+            </div>
+            <p class="wearable-status" id="wearable-status" role="status" aria-live="polite">Not synced yet. Connect to the sample service to load today's activity.</p>
+            <div class="metrics" aria-label="Wearable activity totals">
+              <div class="metric">
+                <div class="metric-label">STEPS</div>
+                <div class="metric-value"><span id="steps-value">--</span><span class="metric-unit">steps</span></div>
+                <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="steps-progress"></div></div>
+                <div class="metric-sub">Example reference: 10,000 steps</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">ACTIVE ENERGY</div>
+                <div class="metric-value"><span id="energy-value">--</span><span class="metric-unit">kcal</span></div>
+                <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="energy-progress"></div></div>
+                <div class="metric-sub">Movement energy, as reported</div>
+              </div>
+            </div>
+            <p class="sync-foot">Demo data only. This page does not connect to a real Google or Apple account; the local API returns sample values for the selected date.</p>
+          </div>
+        </section>
+
+        <aside class="daily-note"><strong>Your journal is yours.</strong> Meal details and photos are kept in the current page session and are not uploaded. Wearable values come from a clearly labeled mock API.</aside>
+      </div>
+    </div>
+    <p class="footer">A learning prototype for consumer health technology. Activity and food records are not medical advice or a clinical assessment.</p>
+  </main>
+
+  <script>
+    (() => {
+      const dateInput = document.getElementById('journal-date');
+      const mealForm = document.getElementById('meal-form');
+      const photoInput = document.getElementById('meal-photo');
+      const photoPreview = document.getElementById('photo-preview');
+      const mealList = document.getElementById('meal-list');
+      const entries = [];
+      let selectedPhoto = '';
+
+      function localDateString(date = new Date()) {
+        const offset = date.getTimezoneOffset() * 60000;
+        return new Date(date.getTime() - offset).toISOString().slice(0, 10);
+      }
+
+      dateInput.value = localDateString();
+      document.getElementById('meal-time').value = new Date().toTimeString().slice(0, 5);
+      document.getElementById('log-date-label').textContent = new Date(`${dateInput.value}T12:00:00`).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+
+      photoInput.addEventListener('change', () => {
+        const file = photoInput.files && photoInput.files[0];
+        selectedPhoto = '';
+        photoPreview.classList.remove('visible');
+        if (!file) {
+          document.getElementById('photo-prompt').textContent = 'Add a photo';
+          return;
+        }
+        if (!file.type.startsWith('image/')) {
+          photoInput.value = '';
+          document.getElementById('photo-prompt').textContent = 'Please choose an image';
+          return;
+        }
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+          selectedPhoto = typeof reader.result === 'string' ? reader.result : '';
+          photoPreview.src = selectedPhoto;
+          photoPreview.classList.toggle('visible', Boolean(selectedPhoto));
+          document.getElementById('photo-prompt').textContent = file.name;
+        });
+        reader.readAsDataURL(file);
+      });
+
+      function renderMeals() {
+        const todaysEntries = entries.filter(entry => entry.date === dateInput.value);
+        document.getElementById('meal-count').textContent = `${todaysEntries.length} ${todaysEntries.length === 1 ? 'entry' : 'entries'}`;
+        document.getElementById('log-date-label').textContent = new Date(`${dateInput.value}T12:00:00`).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+        mealList.replaceChildren();
+        if (!todaysEntries.length) {
+          const empty = document.createElement('div');
+          empty.className = 'empty-state';
+          empty.textContent = 'Nothing logged for this date yet. Add a meal above to get started.';
+          mealList.append(empty);
+          return;
+        }
+        todaysEntries.slice().reverse().forEach(entry => {
+          const card = document.createElement('article');
+          card.className = 'meal-card';
+          const image = entry.photo ? document.createElement('img') : document.createElement('div');
+          image.className = `meal-photo${entry.photo ? '' : ' placeholder'}`;
+          if (entry.photo) {
+            image.src = entry.photo;
+            image.alt = `Photo of ${entry.name}`;
+          } else {
+            image.setAttribute('aria-hidden', 'true');
+            image.textContent = '+';
+          }
+          const details = document.createElement('div');
+          const kind = document.createElement('div');
+          kind.className = 'meal-kind';
+          kind.textContent = entry.meal;
+          const name = document.createElement('div');
+          name.className = 'meal-name';
+          name.textContent = entry.name;
+          const time = document.createElement('div');
+          time.className = 'meal-time';
+          time.textContent = entry.time;
+          details.append(kind, name, time);
+          if (entry.note) {
+            const note = document.createElement('div');
+            note.className = 'meal-note';
+            note.textContent = entry.note;
+            details.append(note);
+          }
+          const remove = document.createElement('button');
+          remove.className = 'remove-meal';
+          remove.type = 'button';
+          remove.setAttribute('aria-label', `Remove ${entry.name}`);
+          remove.title = 'Remove meal';
+          remove.textContent = '\u00d7';
+          remove.addEventListener('click', () => {
+            entries.splice(entries.indexOf(entry), 1);
+            renderMeals();
+          });
+          card.append(image, details, remove);
+          mealList.append(card);
+        });
+      }
+
+      mealForm.addEventListener('submit', event => {
+        event.preventDefault();
+        if (!mealForm.reportValidity()) return;
+        entries.push({
+          date: dateInput.value,
+          meal: document.getElementById('meal-type').value,
+          time: document.getElementById('meal-time').value,
+          name: document.getElementById('meal-name').value.trim(),
+          note: document.getElementById('meal-note').value.trim(),
+          photo: selectedPhoto,
+        });
+        mealForm.reset();
+        document.getElementById('meal-time').value = new Date().toTimeString().slice(0, 5);
+        document.getElementById('photo-prompt').textContent = 'Add a photo';
+        photoPreview.classList.remove('visible');
+        selectedPhoto = '';
+        renderMeals();
+      });
+
+      dateInput.addEventListener('change', renderMeals);
+
+      async function requestActivity(provider, date) {
+        const query = new URLSearchParams({ provider, date });
+        try {
+          const response = await fetch(`/api/wearable/daily?${query}`);
+          if (response.ok) return await response.json();
+          if (!location.hostname.endsWith('github.io')) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'The activity request failed.');
+          }
+        } catch (error) {
+          if (!location.hostname.endsWith('github.io')) throw error;
+        }
+
+        const fixtureResponse = await fetch(new URL(`mock-api/${provider}.json`, document.baseURI));
+        if (!fixtureResponse.ok) throw new Error('The static wearable sample could not be loaded.');
+        return {
+          ...await fixtureResponse.json(),
+          date,
+          syncedAt: new Date().toISOString(),
+          source: 'mock-static',
+        };
+      }
+
+      document.getElementById('sync-button').addEventListener('click', async event => {
+        const button = event.currentTarget;
+        const status = document.getElementById('wearable-status');
+        const provider = document.getElementById('wearable-provider').value;
+        button.disabled = true;
+        button.textContent = 'Syncing...';
+        status.classList.remove('error');
+        status.textContent = 'Requesting daily activity from the sample service...';
+        try {
+          const data = await requestActivity(provider, dateInput.value);
+          document.getElementById('steps-value').textContent = data.steps.toLocaleString();
+          document.getElementById('energy-value').textContent = data.activeEnergyKcal.toLocaleString();
+          document.getElementById('steps-progress').style.width = `${Math.min(data.steps / 10000 * 100, 100)}%`;
+          document.getElementById('energy-progress').style.width = `${Math.min(data.activeEnergyKcal / 500 * 100, 100)}%`;
+          const source = data.source === 'mock-static' ? 'static demo' : 'API mock';
+          status.textContent = `${data.providerLabel} ${source} synced at ${new Date(data.syncedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}.`;
+        } catch (error) {
+          status.classList.add('error');
+          status.textContent = error.message || 'Could not sync activity. Check the local API and try again.';
+        } finally {
+          button.disabled = false;
+          button.textContent = 'Sync activity';
+        }
+      });
+
+      renderMeals();
+    })();
+  </script>
+</body>
+</html>

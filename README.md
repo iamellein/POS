@@ -1,6 +1,6 @@
 # Evidence-Based Policy Rule Engine
 
-A small Node.js lab artifact for checking meal plans against configurable, illustrative institutional policy rules. The interface runs in a browser and submits validation requests to a local backend.
+A small Node.js lab project with two browser-based learning artifacts: a meal-plan policy checker and a consumer meal-and-movement journal.
 
 ## Run
 
@@ -10,7 +10,7 @@ Requires Node.js 18 or newer. No third-party packages are needed.
 node server.js
 ```
 
-Open http://127.0.0.1:3000. Run the unit tests with:
+Open http://127.0.0.1:3000 for Lab 1 or http://127.0.0.1:3000/lab2.html for Lab 2. Run the unit tests with:
 
 ```powershell
 node --test engine.test.js
@@ -26,6 +26,16 @@ The rule engine runs in the browser, so the public site does not need a Node ser
 4. After the workflow succeeds, open the published URL shown in the `github-pages` deployment environment. For this repository it will normally be `https://iamellein.github.io/POS/`.
 
 The browser version and Node API use the same `engine.js` validation rules. Nutrient values remain user-entered.
+
+## Lab 2: Consumer meal and movement journal
+
+Open `/lab2.html` to add meal entries, attach a local photo preview, and sync sample daily activity from the mock wearable API. Entries and selected photos remain in the current browser session; they are not uploaded or persisted. The API supports `googleFit` and `appleHealth` provider samples and accepts an optional `date` in `YYYY-MM-DD` format.
+
+```http
+GET /api/wearable/daily?provider=googleFit&date=2026-10-24
+```
+
+The response includes the provider, date, step count, active energy in kcal, sync timestamp, and `source: "mock"`. No real health account or wearable service is contacted. On GitHub Pages, where Node API routes are unavailable, the page fetches provider-specific static JSON fixtures instead.
 
 ## Included demonstration rules
 
