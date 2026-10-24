@@ -1,6 +1,6 @@
 # Evidence-Based Policy Rule Engine
 
-A small Node.js lab project with two browser-based learning artifacts: a meal-plan policy checker and a consumer meal-and-movement journal.
+A small Node.js lab project with browser-based learning artifacts for policy validation, consumer meal and movement journaling, and structured nutrition care charting.
 
 ## Run
 
@@ -10,7 +10,7 @@ Requires Node.js 18 or newer. No third-party packages are needed.
 node server.js
 ```
 
-Open http://127.0.0.1:3000 for Lab 1 or http://127.0.0.1:3000/lab2.html for Lab 2. Run the unit tests with:
+Open http://127.0.0.1:3000 for Lab 1, http://127.0.0.1:3000/lab2.html for Lab 2, or http://127.0.0.1:3000/lab3.html for Lab 3. Run the unit tests with:
 
 ```powershell
 node --test engine.test.js
@@ -36,6 +36,19 @@ GET /api/wearable/daily?provider=googleFit&date=2026-10-24
 ```
 
 The response includes the provider, date, step count, active energy in kcal, sync timestamp, and `source: "mock"`. No real health account or wearable service is contacted. On GitHub Pages, where Node API routes are unavailable, the page fetches provider-specific static JSON fixtures instead.
+
+## Lab 3: Standardized nutrition care charting
+
+Open `/lab3.html` to create a structured note with Assessment, Nutrition Diagnosis (PES), Intervention, and Monitoring & Evaluation sections. The form generates a readable note and JSON payload, with copy and download actions. The standalone schema is available at `/clinical-note.schema.json`.
+
+The static GitHub Pages version generates the note in-browser and supports JSON download. Run `node server.js` locally to use the validating API from the form or Postman.
+
+```http
+POST /api/clinical-notes
+Content-Type: application/json
+```
+
+The local API checks required note sections, dates, term code/label pairs, and allowed assessment/intervention categories. Built-in codes and labels are teaching placeholders, not official eNCPT terminology. Enter the release and terminology values from an organization's licensed catalog before using a real workflow. Do not enter identifiable patient information; this demo does not save notes to a health record.
 
 ## Included demonstration rules
 

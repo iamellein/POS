@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/encpt-clinical-note.schema.json",
+  "title": "eNCPT Nutrition Care Process Note",
+  "description": "Structured educational charting payload for Assessment, Nutrition Diagnosis, Intervention, and Monitoring and Evaluation. Use terminology codes and labels from the organization's licensed eNCPT release.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "terminology", "patient", "author", "assessment", "diagnosis", "intervention", "monitoringEvaluation"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "terminology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["system", "release"],
+      "properties": {
+        "system": { "const": "eNCPT" },
+        "release": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "source": { "type": "string", "maxLength": 160 }
+      }
+    },
+    "patient": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["localId", "encounterDate"],
+      "properties": {
+        "localId": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "encounterDate": { "type": "string", "format": "date" }
+      }
+    },
+    "author": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["displayName", "credentials"],
+      "properties": {
+        "displayName": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "credentials": { "type": "string", "minLength": 1, "maxLength": 40 }
+      }
+    },
+    "assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["findings", "summary"],
+      "properties": {
+        "findings": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/assessmentFinding" }
+        },
+        "summary": { "type": "string", "minLength": 1, "maxLength": 2000 }
+      }
+    },
+    "diagnosis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["problem", "etiology", "signsSymptoms", "pesStatement"],
+      "properties": {
+        "problem": { "$ref": "#/$defs/term" },
+        "etiology": { "$ref": "#/$defs/term" },
+        "signsSymptoms": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/term" }
+        },
+        "pesStatement": { "type": "string", "minLength": 1, "maxLength": 1200 }
+      }
+    },
+    "intervention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category", "term", "actions", "goal"],
+      "properties": {
+        "category": { "type": "string", "enum": ["Food and/or Nutrient Delivery", "Nutrition Education", "Nutrition Counseling", "Coordination of Nutrition Care"] },
+        "term": { "$ref": "#/$defs/term" },
+        "actions": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1, "maxLength": 500 } },
+        "goal": { "type": "string", "minLength": 1, "maxLength": 500 }
+      }
+    },
+    "monitoringEvaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["indicators", "followUpDate", "progressNote"],
+      "properties": {
+        "indicators": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/monitoringIndicator" } },
+        "followUpDate": { "type": "string", "format": "date" },
+        "progressNote": { "type": "string", "minLength": 1, "maxLength": 1200 }
+      }
+    }
+  },
+  "$defs": {
+    "term": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "label"],
+      "properties": {
+        "code": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "label": { "type": "string", "minLength": 1, "maxLength": 240 },
+        "catalogRelease": { "type": "string", "maxLength": 40 }
+      }
+    },
+    "assessmentFinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domain", "term", "value", "unit", "source"],
+      "properties": {
+        "domain": { "type": "string", "enum": ["Food/Nutrition-Related History", "Anthropometric Measurements", "Biochemical Data, Medical Tests and Procedures", "Nutrition-Focused Physical Findings", "Client History"] },
+        "term": { "$ref": "#/$defs/term" },
+        "value": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "unit": { "type": "string", "maxLength": 40 },
+        "source": { "type": "string", "minLength": 1, "maxLength": 160 }
+      }
+    },
+    "monitoringIndicator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["term", "baseline", "target", "timeframe"],
+      "properties": {
+        "term": { "$ref": "#/$defs/term" },
+        "baseline": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "target": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "timeframe": { "type": "string", "minLength": 1, "maxLength": 100 }
+      }
+    }
+  }
+}
