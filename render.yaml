@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: evidence-based-policy-rule-engine
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start

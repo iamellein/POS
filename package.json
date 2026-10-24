@@ -1,0 +1,13 @@
+{
+  "name": "evidence-based-policy-rule-engine",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A teaching demo for validating meal plans against configurable policy rules.",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test engine.test.js"
+  }
+}
