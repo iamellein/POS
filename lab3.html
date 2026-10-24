@@ -399,6 +399,7 @@
 
       function setCurrentNote(note) {
         currentNote = note;
+        activeView = 'note';
         jsonPreview.textContent = JSON.stringify(note, null, 2);
         renderNarrative(note);
         byId('copy-json').disabled = false;
